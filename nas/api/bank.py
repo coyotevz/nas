@@ -5,7 +5,23 @@ from marshmallow_sqlalchemy import ModelSchema
 
 from ..models import Bank
 
-bank_api = Blueprint('api.bank', __name__)
+
+class RestBlueprint(Blueprint):
+
+    def route(self, rule, **options):
+        def decorator(f):
+            endpoint = options.pop("endpoint", f.__name__)
+
+            def new_f(*args, **kwargs):
+                return jsonify(f(*args, **kwargs))
+
+            self.add_url_rule(rule, endpoint, new_f, **options)
+
+            return new_f
+        return decorator
+
+
+bank_api = RestBlueprint('api.bank', __name__)
 
 
 class BankSchema(ModelSchema):
@@ -17,7 +33,7 @@ class BankSchema(ModelSchema):
 @bank_api.route('')
 def list():
     q = Bank.query
-    return jsonify({ 'data': BankSchema(many=True).dump(q).data })
+    return BankSchema(many=True).dump(q).data
 
 @bank_api.route('', methods=['POST'])
 def create():

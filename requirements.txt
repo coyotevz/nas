@@ -1,0 +1,8 @@
+flask-sqlalchemy
+flask-marshmallow
+marshmallow==2.12.1
+marshmallow-sqlalchemy
+webargs
+
+# postgresql connector
+psycopg2

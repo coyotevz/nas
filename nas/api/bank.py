@@ -75,11 +75,6 @@ class BankSchema(ModelSchema):
     class Meta:
         model = Bank
 
-    #@validates('name')
-    #def name_is_present(self, name):
-    #    if not name:
-    #        raise ValidationError("Name can't be null")
-
 
 @bank_api.route('')
 def list():
@@ -90,7 +85,8 @@ def list():
 @bank_api.route('', methods=['POST'])
 @use_args(BankSchema(strict=True, partial=True))
 def create(properties):
-    print("create:", properties)
+    if 'name' not in properties:
+        raise ValueError("'name' field must be present")
     bank = Bank(**properties)
     db.session.add(bank)
     db.session.commit()
@@ -109,7 +105,7 @@ def update(properties, id):
     bank = Bank.query.get_or_404(id)
     update_model(bank, properties)
     db.session.commit()
-    return BankSchema().dump(bank).data, 201
+    return BankSchema().dump(bank).data
 
 
 @bank_api.route('/<int:id>', methods=['DELETE'])
@@ -117,4 +113,4 @@ def delete(id):
     b = Bank.query.get_or_404(id)
     db.session.delete(b)
     db.session.commit()
-    return '', 201
+    return '', 204

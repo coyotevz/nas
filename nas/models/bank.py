@@ -16,7 +16,8 @@ class Bank(db.Model):
 
     @validates('name')
     def name_is_unique(self, key, name):
-        if self.query.filter_by(name=name).first():
+        dup = self.query.filter_by(name=name).first()
+        if dup and dup.id != self.id:
             raise ValueError("Name must be unique")
         return name
 
@@ -24,13 +25,15 @@ class Bank(db.Model):
     def cuit_is_valid(self, key, cuit):
         if not validate_cuit(cuit):
             raise ValueError('CUIT Invalid')
-        if self.query.filter_by(cuit=cuit).first():
+        dup = self.query.filter_by(cuit=cuit).first()
+        if dup and dup.id != self.id:
             raise ValueError('CUIT must be unique')
         return cuit
 
     @validates('bcra_code')
     def bcra_code_is_unique(self, key, bcra_code):
-        if self.query.filter_by(bcra_code=bcra_code).first():
+        dup = self.query.filter_by(bcra_code=bcra_code).first()
+        if dup and dup.id != self.id:
             raise ValueError("'bcra_code' must be unique")
         return bcra_code
 

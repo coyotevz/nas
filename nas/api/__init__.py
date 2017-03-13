@@ -2,7 +2,7 @@
 
 from flask import Blueprint, jsonify
 from flask_marshmallow import Marshmallow
-URL_PREFIX = '/api/v1'
+URL_PREFIX = '/api'
 
 ma = Marshmallow()
 

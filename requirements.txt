@@ -1,6 +1,6 @@
 flask-sqlalchemy
 flask-marshmallow
-marshmallow==2.12.1
+marshmallow
 marshmallow-sqlalchemy
 webargs
 

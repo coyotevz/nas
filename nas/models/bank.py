@@ -10,15 +10,29 @@ class Bank(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Unicode, unique=True, nullable=False)
-    bcra_code = db.Column(db.Unicode(8))
-    cuit = db.Column(db.Unicode(11))
+    bcra_code = db.Column(db.Unicode(8), unique=True)
+    cuit = db.Column(db.Unicode(11), unique=True)
     # TODO: Add bank logo, to quickly identify
+
+    @validates('name')
+    def name_is_unique(self, key, name):
+        if self.query.filter_by(name=name).first():
+            raise ValueError("Name must be unique")
+        return name
 
     @validates('cuit')
     def cuit_is_valid(self, key, cuit):
         if not validate_cuit(cuit):
             raise ValueError('CUIT Invalid')
+        if self.query.filter_by(cuit=cuit).first():
+            raise ValueError('CUIT must be unique')
         return cuit
+
+    @validates('bcra_code')
+    def bcra_code_is_unique(self, key, bcra_code):
+        if self.query.filter_by(bcra_code=bcra_code).first():
+            raise ValueError("'bcra_code' must be unique")
+        return bcra_code
 
 class BankAccount(db.Model):
     __tablename__ = 'bank_account'

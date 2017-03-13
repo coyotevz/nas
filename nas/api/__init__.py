@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
 from flask import Blueprint, jsonify
-from .bank import bank_api
-
+from flask_marshmallow import Marshmallow
 URL_PREFIX = '/api/v1'
 
-api = Blueprint('api', __name__)
+ma = Marshmallow()
 
+from .bank import bank_api
+
+api = Blueprint('api', __name__)
 
 @api.route('')
 def index():
@@ -16,5 +18,6 @@ def index():
 
 
 def configure_api(app):
+    ma.init_app(app)
     app.register_blueprint(api, url_prefix=URL_PREFIX)
     app.register_blueprint(bank_api, url_prefix=URL_PREFIX + '/banks')

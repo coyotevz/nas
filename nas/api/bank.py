@@ -3,6 +3,7 @@
 from flask import Blueprint, make_response, json, current_app
 from webargs.flaskparser import use_args
 from marshmallow import validates, ValidationError
+from marshmallow_sqlalchemy import field_for
 
 from ..utils import RestBlueprint, update_model
 from ..models import Bank, db
@@ -13,8 +14,11 @@ bank_api = RestBlueprint('api.bank', __name__)
 
 class BankSchema(ModelSchema):
 
+    id = field_for(Bank, 'id', dump_only=True)
+
     class Meta:
         model = Bank
+        exclude = ('accounts',)
 
 
 @bank_api.route('')

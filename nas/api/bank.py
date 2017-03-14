@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from flask import Blueprint, make_response, json, current_app
 from webargs.flaskparser import use_args
-from marshmallow import validates, ValidationError
 from marshmallow_sqlalchemy import field_for
 
 from ..utils import RestBlueprint, update_model
-from ..models import Bank, db
+from ..models import Bank, BankAccount, db
 from . import ModelSchema
+from .bank_account import BankAccountSchema
 
 bank_api = RestBlueprint('api.bank', __name__)
 
@@ -59,3 +58,11 @@ def delete(id):
     db.session.delete(b)
     db.session.commit()
     return '', 204
+
+
+@bank_api.route('/<int:id>/accounts')
+def list_accounts(id):
+    b = Bank.query.get_or_404(id)
+    return (BankAccountSchema(many=True).dump(b.accounts).data,
+            200,
+            {'X-Total-Count': len(b.accounts)})

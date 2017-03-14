@@ -19,6 +19,7 @@ def configure_api(app):
     ma.init_app(app)
     app.register_blueprint(api, url_prefix=URL_PREFIX)
     app.register_blueprint(bank_api, url_prefix=URL_PREFIX + '/banks')
+    app.register_blueprint(bank_account_api, url_prefix=URL_PREFIX + '/bank_accounts')
 
 
 class ModelSchema(ma.ModelSchema):
@@ -28,3 +29,4 @@ class ModelSchema(ma.ModelSchema):
 
 
 from .bank import bank_api
+from .bank_account import bank_account_api

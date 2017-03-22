@@ -1,23 +1,23 @@
 # -*- coding: utf-8 -*-
 
+from flask import abort
+from marshmallow import Schema, fields, validates, ValidationError
 from webargs.flaskparser import use_args
-from marshmallow_sqlalchemy import field_for
+
 
 from ..utils import RestBlueprint, update_model
 from ..models import Bank, BankAccount, db
-from . import ModelSchema
 from .bank_account import BankAccountSchema
 
 bank_api = RestBlueprint('api.bank', __name__)
 
 
-class BankSchema(ModelSchema):
+class BankSchema(Schema):
 
-    id = field_for(Bank, 'id', dump_only=True)
-
-    class Meta:
-        model = Bank
-        exclude = ('accounts',)
+    id = fields.Integer(dump_only=True)
+    name = fields.String(required=True)
+    bcra_code = fields.String(lenght=8)
+    cuit = fields.String(length=11)
 
 
 @bank_api.route('')
@@ -66,3 +66,10 @@ def list_accounts(id):
     return (BankAccountSchema(many=True).dump(b.accounts).data,
             200,
             {'X-Total-Count': len(b.accounts)})
+
+@bank_api.route('/<int:id>/accounts/<int:acc_id>', methods=['DELETE'])
+def delete_account(id, acc_id):
+    deleted = BankAccount.query.filter(BankAccount.id==acc_id).filter(Bank.id==id).delete()
+    if deleted == 0:
+        abort(404)
+    return '', 204

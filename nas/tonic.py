@@ -315,7 +315,7 @@ def build_schema(schema_or_dict):
 class Route(object):
 
     def __init__(self, method=None, view_func=None, rule=None, attribute=None,
-                 rel=None, request_schema=None, response_schema=None):
+                 rel=None, request_schema=None, response_schema=None, **schema_kw):
         self.method = method
         self.view_func = view_func
         self.rule = rule
@@ -332,6 +332,8 @@ class Route(object):
 
         self.response_schema = build_schema(self.response_schema)
         self.request_schema = request_schema
+
+        self._schema_kw = schema_kw
 
         # Rewrite 'http methods' as instance methods, Route().GET
         for method in HTTP_METHODS:
@@ -381,9 +383,10 @@ class Route(object):
         self.endpoint = name
         view_func = self.view_func
         response_schema = self.response_schema or resource.meta.schema
+        schema_kw = self._schema_kw
 
         if isinstance(response_schema, type): # cls or instance
-            response_schema = response_schema()
+            response_schema = response_schema(**self._schema_kw)
 
         def view(*args, **kwargs):
             instance = resource()
@@ -393,7 +396,8 @@ class Route(object):
 
                 # dirty hack
                 if isinstance(request_schema, type):
-                    request_schema = request_schema(strict=True, partial=request.method=='PATCH')
+                    skwargs = {**{'strict': True, 'partial': request.method=='PATCH'}, **schema_kw}
+                    request_schema = request_schema(**skwargs)
 
                 parsed_args = parser.parse(request_schema, locations=('json',))
                 args = args + (parsed_args,)
@@ -405,6 +409,7 @@ class Route(object):
                 return resp
 
             data, code, headers = _unpack(resp)
+            print('response_schema:', response_schema)
             result = response_schema.dump(data, many=is_collection(data)).data
             return _make_response(result, code, headers)
         return view
@@ -475,9 +480,10 @@ class RouteSet(object):
 
 class Relation(RouteSet):
 
-    def __init__(self, attribute, schema=None, methods=None):
+    def __init__(self, attribute=None, schema=None, methods=None, **schema_kw):
         self.attribute = attribute
         self.schema = schema
+        self.schema_kw = schema_kw
         self.methods = methods
 
     def routes(self):
@@ -491,17 +497,21 @@ class Relation(RouteSet):
 
         yield relations_route.for_method('GET', relation_instances,
                                          rel="read_{}".format(self.attribute),
-                                         response_schema=self.schema)
+                                         response_schema=self.schema,
+                                         **self.schema_kw)
 
-        def relation_add(resource, item, target_item):
-            resource.manager.relation_add(item, self.attribute, target_item)
+        def relation_add(resource, item, target_data):
+            target_item = resource.manager.relation_add(item, self.attribute, target_data)
             resource.manager.commit()
             return target_item
+
+        post_schema_kw = {**self.schema_kw, **{'strict': True, 'partial': True}}
 
         yield relations_route.for_method('POST', relation_add,
                                          rel='add_{}'.format(self.attribute),
                                          request_schema=self.schema(strict=True, partial=True),
-                                         response_schema=self.schema)
+                                         response_schema=self.schema,
+                                         **post_schema_kw)
 
         def relation_remove(resource, item, target_id):
             resource.manager.relation_remove(item, self.attribute, target_id)
@@ -649,6 +659,7 @@ class Manager(object):
             abort(404)
         target_item = Model(**target_data)
         getattr(item, attribute).append(target_item)
+        return target_item
 
     def relation_remove(self, item, attribute, target_id):
         # TODO: Rewrite using _get_remote_model

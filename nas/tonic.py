@@ -720,6 +720,9 @@ class Manager(object):
 
         return query.order_by(*order_clauses)
 
+    def _query_get_all(self, query):
+        return query.all()
+
     def _query_get_first(self, qurey):
         try:
             return query.one()

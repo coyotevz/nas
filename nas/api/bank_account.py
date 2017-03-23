@@ -1,19 +1,23 @@
 # -*- coding: utf-8 -*-
 
+from marshmallow import Schema, fields
 from webargs.flaskparser import use_args
 
 from ..utils import RestBlueprint, update_model
 from ..models import BankAccount, db
-from . import ModelSchema
 
 
 bank_account_api = RestBlueprint('api.bank_account', __name__)
 
 
-class BankAccountSchema(ModelSchema):
+class BankAccountSchema(Schema):
 
-    class Meta:
-        model = BankAccount
+    id = fields.Integer(dump_only=True)
+    branch = fields.String()
+    acc_type = fields.String()
+    number = fields.String()
+    owner = fields.String()
+    cbu = fields.String()
 
 
 @bank_account_api.route('')

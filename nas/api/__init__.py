@@ -4,6 +4,7 @@ from flask import Blueprint, jsonify
 from ..tonic import Api
 
 from .bank import BankResource, BankAccountResource
+from .supplier import SupplierResource
 
 URL_PREFIX = ''
 
@@ -12,3 +13,4 @@ def configure_api(app):
 
     api.register_resource(BankResource)
     api.register_resource(BankAccountResource)
+    api.register_resource(SupplierResource)

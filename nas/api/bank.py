@@ -1,22 +1,21 @@
 # -*- coding: utf-8 -*-
 
-from marshmallow import Schema, fields
+from marshmallow import fields
 
 from ..tonic import ModelResource, Relation, Route
 from ..models import Bank, BankAccount
+from .misc import IdSchema
 
 
-class BankSchema(Schema):
+class BankSchema(IdSchema):
 
-    id = fields.Integer(dump_only=True)
     name = fields.String(required=True)
     bcra_code = fields.String(lenght=8)
     cuit = fields.String(length=11)
 
 
-class BankAccountSchema(Schema):
+class BankAccountSchema(IdSchema):
 
-    id = fields.Integer(dump_only=True)
     bank_id = fields.Integer(required=True, load_only=True)
     entity_id = fields.Integer(required=True, load_only=True)
     branch = fields.String()

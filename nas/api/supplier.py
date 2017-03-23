@@ -6,6 +6,14 @@ from ..tonic import ModelResource, Relation
 from ..models import Supplier
 
 from .misc import EntitySchema
+from .bank import BankAccountSchema
+
+
+class ContactSchema(EntitySchema):
+
+    first_name = fields.String(attribute='_name_1')
+    last_name = fields.String(attribute='_name_2')
+    suppliers = fields.Nested('SupplierSchema', exclude=('contacts',), many=True)
 
 
 class SupplierSchema(EntitySchema):
@@ -15,6 +23,9 @@ class SupplierSchema(EntitySchema):
 
 
 class SupplierResource(ModelResource):
+
+    contacts = Relation(attribute='supplier_contacts', schema=ContactSchema, exclude=('suppliers',))
+    bank_accounts = Relation(schema=BankAccountSchema)
 
     class Meta:
         name = 'suppliers'

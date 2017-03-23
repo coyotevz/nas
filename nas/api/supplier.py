@@ -2,7 +2,7 @@
 
 from marshmallow import Schema, fields
 
-from ..tonic import ModelResource, Relation
+from ..tonic import ModelResource, Relation, Route
 from ..models import Supplier
 
 from .misc import EntitySchema
@@ -20,6 +20,8 @@ class SupplierSchema(EntitySchema):
 
     rz = fields.String(attribute='_name_1')
     name = fields.String(attribute='_name_2')
+    sup_type = fields.String(load_only=True)
+    type = fields.String(dump_only=True)
 
 
 class SupplierResource(ModelResource):
@@ -31,3 +33,7 @@ class SupplierResource(ModelResource):
         name = 'suppliers'
         model = Supplier
         schema = SupplierSchema
+
+    @Route.GET('/types')
+    def types(self) -> {"types": fields.Dict()}:
+        return {"types": Supplier._sup_type}

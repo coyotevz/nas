@@ -409,7 +409,6 @@ class Route(object):
                 return resp
 
             data, code, headers = _unpack(resp)
-            print('response_schema:', response_schema)
             result = response_schema.dump(data, many=is_collection(data)).data
             return _make_response(result, code, headers)
         return view
@@ -505,11 +504,11 @@ class Relation(RouteSet):
             resource.manager.commit()
             return target_item
 
-        post_schema_kw = {**self.schema_kw, **{'strict': True, 'partial': True}}
+        post_schema_kw = {**{'strict': True, 'partial': True}, **self.schema_kw}
 
         yield relations_route.for_method('POST', relation_add,
                                          rel='add_{}'.format(self.attribute),
-                                         request_schema=self.schema(strict=True, partial=True),
+                                         request_schema=self.schema,
                                          response_schema=self.schema,
                                          **post_schema_kw)
 

@@ -1,7 +1,5 @@
 flask-sqlalchemy
-flask-marshmallow
 marshmallow
-marshmallow-sqlalchemy
 webargs
 
 # postgresql connector

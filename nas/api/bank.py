@@ -44,9 +44,11 @@ class BankAccountResource(ModelResource):
         schema = BankAccountSchema
 
     @Route.GET('/types')
-    def list_types(self) -> {'symbol': fields.Str(), 'name': fields.Str()}:
-        return [
-            { 'symbol': 'CC', 'name': 'Cuenta Corriente' },
-            { 'symbol': 'CA', 'name': 'Caja de Ahorro' },
-            { 'symbol': 'CU', 'name': 'Cuenta Única' },
-        ]
+    def list_types(self) -> {'types': fields.Dict()}:
+        return {
+            "types": {
+                "CC": "Cuenta Corriente",
+                "CA": "Caja de Ahorro",
+                "CU": "Cuenta Única",
+            }
+        }

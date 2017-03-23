@@ -2,7 +2,7 @@
 
 from marshmallow import Schema, fields
 
-from ..tonic import ModelResource, Relation
+from ..tonic import ModelResource, Relation, Route
 from ..models import Bank, BankAccount
 
 
@@ -30,7 +30,7 @@ class BankAccountSchema(Schema):
 
 class BankResource(ModelResource):
 
-    accounts = Relation(schema=BankAccountSchema, exclude=('bank',))
+    accounts = Relation(schema=BankAccountSchema, exclude=('bank',), partial=('bank_id',))
 
     class Meta:
         name = 'banks'
@@ -43,3 +43,11 @@ class BankAccountResource(ModelResource):
     class Meta:
         model = BankAccount
         schema = BankAccountSchema
+
+    @Route.GET('/types')
+    def list_types(self) -> {'symbol': fields.Str(), 'name': fields.Str()}:
+        return [
+            { 'symbol': 'CC', 'name': 'Cuenta Corriente' },
+            { 'symbol': 'CA', 'name': 'Caja de Ahorro' },
+            { 'symbol': 'CU', 'name': 'Cuenta Única' },
+        ]

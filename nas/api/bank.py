@@ -1,15 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from flask import abort
-from marshmallow import Schema, fields, validates, ValidationError
-from webargs.flaskparser import use_args
+from marshmallow import Schema, fields
 
-
-from ..utils import RestBlueprint, update_model
-from ..models import Bank, BankAccount, db
-from .bank_account import BankAccountSchema
-
-bank_api = RestBlueprint('api.bank', __name__)
+from ..tonic import ModelResource
+from ..models import Bank, BankAccount
 
 
 class BankSchema(Schema):
@@ -20,56 +14,26 @@ class BankSchema(Schema):
     cuit = fields.String(length=11)
 
 
-@bank_api.route('')
-def list():
-    q = Bank.query.all()
-    return BankSchema(many=True).dump(q).data, 200, {'X-Total-Count': len(q)}
+class BankResource(ModelResource):
+
+    class Meta:
+        name = 'banks'
+        model = Bank
+        schema = BankSchema
 
 
-@bank_api.route('', methods=['POST'])
-@use_args(BankSchema(strict=True, partial=True))
-def create(properties):
-    if 'name' not in properties:
-        raise ValueError("'name' field must be present")
-    bank = Bank(**properties)
-    db.session.add(bank)
-    db.session.commit()
-    return BankSchema().dump(bank).data, 201
+class BankAccountSchema(Schema):
+
+    id = fields.Integer(dump_only=True)
+    branch = fields.String()
+    acc_type = fields.String()
+    number = fields.String()
+    owner = fields.String()
+    cbu = fields.String()
 
 
-@bank_api.route('/<int:id>', methods=['GET'])
-def get(id):
-    b = Bank.query.get_or_404(id)
-    return BankSchema().dump(b).data
+class BankAccountResource(ModelResource):
 
-
-@bank_api.route('/<int:id>', methods=['PATCH'])
-@use_args(BankSchema(strict=True, partial=True))
-def update(properties, id):
-    bank = Bank.query.get_or_404(id)
-    update_model(bank, properties)
-    db.session.commit()
-    return BankSchema().dump(bank).data
-
-
-@bank_api.route('/<int:id>', methods=['DELETE'])
-def delete(id):
-    b = Bank.query.get_or_404(id)
-    db.session.delete(b)
-    db.session.commit()
-    return '', 204
-
-
-@bank_api.route('/<int:id>/accounts')
-def list_accounts(id):
-    b = Bank.query.get_or_404(id)
-    return (BankAccountSchema(many=True).dump(b.accounts).data,
-            200,
-            {'X-Total-Count': len(b.accounts)})
-
-@bank_api.route('/<int:id>/accounts/<int:acc_id>', methods=['DELETE'])
-def delete_account(id, acc_id):
-    deleted = BankAccount.query.filter(BankAccount.id==acc_id).filter(Bank.id==id).delete()
-    if deleted == 0:
-        abort(404)
-    return '', 204
+    class Meta:
+        model = BankAccount
+        schema = BankAccountSchema

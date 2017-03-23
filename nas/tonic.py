@@ -491,8 +491,8 @@ class Relation(RouteSet):
         relation_route = ItemRoute(rule='{}/<int:target_id>'.format(rule))
         relations_route = ItemRoute(rule=rule)
 
-        def relation_instances(resource, item):
-            return resource.manager.relation_instances(item, self.attribute)
+        def relation_instances(resource, item, **kwargs):
+            return resource.manager.relation_instances(item, self.attribute, **kwargs)
 
         yield relations_route.for_method('GET', relation_instances,
                                          rel="read_{}".format(self.attribute),
@@ -644,7 +644,8 @@ class Manager(object):
 
             raise BackendConflict()
 
-    def relation_instances(self, item, attribute):
+    def relation_instances(self, item, attribute, **kwargs):
+        # TODO: Honor where, sort, fields, etc. arguments
         query = getattr(item, attribute)
 
         if isinstance(query, InstrumentedList):

@@ -5,6 +5,7 @@ from ..tonic import Api
 
 from .bank import BankResource, BankAccountResource
 from .supplier import SupplierResource
+from .document import DocumentResource
 
 URL_PREFIX = ''
 
@@ -14,3 +15,4 @@ def configure_api(app):
     api.register_resource(BankResource)
     api.register_resource(BankAccountResource)
     api.register_resource(SupplierResource)
+    api.register_resource(DocumentResource)

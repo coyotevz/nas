@@ -32,3 +32,12 @@ def dropdb():
     """Drops all database tables"""
     if click.confirm("Are you sure ? You will lose all your data!"):
         db.drop_all()
+
+
+@app.cli.command()
+def migrate():
+    """Migrate from a database for old application"""
+    from nas.utils.migrate import migrate_suppliers, configure_session
+    db.create_all()
+    session = configure_session(app.config['MIGRATION_DB_URI'])
+    migrate_suppliers(session)

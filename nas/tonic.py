@@ -149,7 +149,8 @@ class Api(object):
             return
 
         if resource.api is not None and resource.api != self:
-            print("resource:", resource, "api:", resource.api)
+            print("resource:", resource, "api:", resource.api, "self:", self)
+            import pudb; pudb.set_trace()
             raise RuntimeError
 
         # check that each resource has an associated manager

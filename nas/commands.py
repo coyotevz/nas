@@ -37,6 +37,7 @@ def dropdb():
 @app.cli.command()
 def migrate():
     """Migrate from a database for old application"""
+    print("start migration command")
     from nas.utils.migrate import migrate_suppliers, configure_session
     db.create_all()
     session = configure_session(app.config['MIGRATION_DB_URI'])

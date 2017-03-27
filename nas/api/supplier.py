@@ -7,6 +7,7 @@ from ..models import Supplier
 
 from .misc import EntitySchema, FiscalDataSchema
 from .bank import BankAccountSchema
+from .document import DocumentSchema
 
 
 class ContactSchema(EntitySchema):
@@ -29,6 +30,7 @@ class SupplierResource(ModelResource):
 
     contacts = Relation(attribute='supplier_contacts', schema=ContactSchema, exclude=('suppliers',))
     bank_accounts = Relation(schema=BankAccountSchema)
+    documents = Relation(schema=DocumentSchema, exclude=('supplier',))
 
     class Meta:
         name = 'suppliers'

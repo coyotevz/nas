@@ -14,7 +14,6 @@ import click
 from sqlalchemy import func
 
 # new app
-from nas.application import create_app
 from nas.models import (Address, Bank, BankAccount, Contact, Document, Email,
                         FiscalData, Phone, PurchaseOrder, PurchaseOrderItem,
                         Supplier, db)
@@ -24,7 +23,6 @@ from nas.utils.validators import validate_cuit
 from .proveedores import (Comentario, CuentaBanco, Factura, Pedido, PedidoSub,
                           Proveedor, configure_session)
 
-app = create_app()
 today = date.today()
 
 def check_year(date):

@@ -24,7 +24,6 @@ def create_app(config=None, app_name=None):
     configure_app(app, config)
     configure_db(app)
     # configure_auth(app)
-    import pudb; pudb.set_trace
     configure_api(app)
 
     return app

@@ -165,7 +165,7 @@ class Api(object):
             if rset.attribute is None:
                 rset.attribute = name
 
-            for i, route in enumerate(rset.routes()):
+            for i, route in enumerate(rset.routes(name)):
                 if route.attribute is None:
                     route.attribute = '{}_{}'.format(rset.attribute, i)
                 resource.routes['{}_{}'.format(rset.attribute, route.relation)] = route
@@ -368,7 +368,7 @@ class Route(object):
         rule = self.rule
 
         if rule is None:
-            rule = '/{}'.format(self.attribute.replace('_', '-'))
+            rule = '/{}'.format(self.attribute)
         elif callable(rule):
             rule = rule(resource)
 
@@ -447,7 +447,7 @@ class ItemRoute(Route):
         id_matcher = '<int:id>'
 
         if rule is None:
-            rule = '/{}'.format(self.attribute.replace('_', '-'))
+            rule = '/{}'.format(self.attribute)
         elif callable(rule):
             rule = rule(resource)
 
@@ -485,8 +485,8 @@ class Relation(RouteSet):
         self.schema_kw = schema_kw
         self.methods = methods
 
-    def routes(self):
-        rule = '/{}'.format(self.attribute.replace('_', '-'))
+    def routes(self, name=None):
+        rule = '/{}'.format(name or self.attribute)
 
         relation_route = ItemRoute(rule='{}/<int:target_id>'.format(rule))
         relations_route = ItemRoute(rule=rule)

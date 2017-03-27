@@ -24,7 +24,7 @@ class BankAccountSchema(IdSchema):
     owner = fields.String()
     cbu = fields.String()
 
-    bank = fields.Nested(BankSchema, exclude=('accounts'))
+    bank = fields.Nested(BankSchema, exclude=('accounts', 'bcra_code', 'cuit'))
 
 
 class BankResource(ModelResource):
@@ -40,6 +40,7 @@ class BankResource(ModelResource):
 class BankAccountResource(ModelResource):
 
     class Meta:
+        name = 'bank_accounts'
         model = BankAccount
         schema = BankAccountSchema
 

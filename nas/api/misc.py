@@ -26,6 +26,13 @@ class PhoneSchema(IdSchema):
         fields = ('number', 'phone_type')
 
 
+class FiscalDataSchema(IdSchema):
+
+    cuit = fields.String()
+    type = fields.String()
+    iibb = fields.String()
+
+
 class TimestampMixin(object):
 
     created = fields.DateTime(dump_only=True)

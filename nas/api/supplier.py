@@ -5,7 +5,7 @@ from marshmallow import Schema, fields
 from ..tonic import ModelResource, Relation, Route
 from ..models import Supplier
 
-from .misc import EntitySchema
+from .misc import EntitySchema, FiscalDataSchema
 from .bank import BankAccountSchema
 
 
@@ -22,6 +22,7 @@ class SupplierSchema(EntitySchema):
     name = fields.String(attribute='_name_2')
     sup_type = fields.String(load_only=True)
     type = fields.String(dump_only=True)
+    fiscal_data = fields.Nested(FiscalDataSchema)
 
 
 class SupplierResource(ModelResource):

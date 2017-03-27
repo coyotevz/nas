@@ -24,6 +24,12 @@ class SupplierSchema(EntitySchema):
     sup_type = fields.String(load_only=True)
     type = fields.String(dump_only=True)
     fiscal_data = fields.Nested(FiscalDataSchema)
+    debt = fields.Number()
+    expired = fields.Number()
+    expiration_date = fields.Date()
+
+    class Meta:
+        additional = ("payment_term", "leap_time", "delivery_included", "web", )
 
 
 class SupplierResource(ModelResource):

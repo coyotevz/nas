@@ -2,13 +2,15 @@
 
 from marshmallow import Schema, fields
 
-from ..tonic import ModelResource
+from ..tonic import ModelResource, Route
 from ..models import Document
 from .misc import IdSchema, TimestampMixin
 
 
 class DocumentSchema(TimestampMixin, IdSchema):
 
+    issue_date = fields.Date()
+    expiration_date = fields.Date()
     total = fields.Number()
     type = fields.String(dump_only=True)
     status = fields.String(dump_only=True)
@@ -18,8 +20,7 @@ class DocumentSchema(TimestampMixin, IdSchema):
     supplier = fields.Nested('SupplierSchema')
 
     class Meta:
-        additional = ("point_sale", "number", "issue_date", "expiration_date",
-                      "notes")
+        additional = ("point_sale", "number", "notes")
 
 class DocumentResource(ModelResource):
 
@@ -27,3 +28,11 @@ class DocumentResource(ModelResource):
         name = 'documents'
         model = Document
         schema = DocumentSchema
+
+    @Route.GET('/types')
+    def types(self) -> {"types": fields.Dict()}:
+        return {"types": Document._doc_type}
+
+    @Route.GET('/statuses')
+    def statuses(self) -> {"statuses": fields.Dict()}:
+        return {"statuses": Document._doc_status}

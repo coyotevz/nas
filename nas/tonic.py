@@ -416,7 +416,7 @@ class Route(object):
                     'page': data.page,
                     'per_page': data.per_page,
                     'pages': data.pages,
-                    'data': items,
+                    'items': items,
                 }
             else:
                 result = response_schema.dump(data, many=is_collection(data)).data

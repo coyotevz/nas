@@ -560,6 +560,12 @@ class Manager(object):
         if not hasattr(resource.Meta, 'name'):
             meta['name'] = model.__tablename__.lower()
 
+    def paginated_instances(self, page, per_page, where=None, sort=None):
+        instances = self.instances(where=where, sort=sort)
+        if isinstance(instances, list):
+            return instances
+        return self._query_get_paginated_items(instances, page, per_page)
+
     def instances(self, where=None, sort=None, **kwargs):
         query = self._query()
 
@@ -719,6 +725,9 @@ class Manager(object):
                 order_clauses.append(getattr(column, order)())
 
         return query.order_by(*order_clauses)
+
+    def _query_get_paginated_items(self, query, page, per_page):
+        return query.paginate(page=page, per_page=per_page)
 
     def _query_get_all(self, query):
         return query.all()

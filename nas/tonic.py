@@ -212,9 +212,12 @@ OPERATORS = {
     'gte': lambda f, a: f >= a,
     'lte': lambda f, a: f <= a,
 
-    'contains': lambda f, a: f.contains(a),
-    'endswith': lambda f, a: f.endswith(a),
-    'startswith': lambda f, a: f.startswith(a),
+    #'contains': lambda f, a: f.contains(a),
+    'contains': lambda f, a: f.ilike('%' + a.strip() + '%'),
+    #'endswith': lambda f, a: f.endswith(a),
+    'endswith': lambda f, a: f.ilike('%' + a.strip()),
+    #'startswith': lambda f, a: f.startswith(a),
+    'startswith': lambda f, a: f.ilike(a.strip() + '%'),
     'like': lambda f, a: f.like(a),
     'ilike': lambda f, a: f.ilike(a),
 
@@ -243,13 +246,21 @@ class Filter(object):
     def __repr__(self):
         return 'Filter("{}", "{}", "{}")'.format(self.name, self.operator, self.argument)
 
+    def is_valid(self):
+        return self.operator in OPERATORS
+
     def expression(self, model):
-        return OPERATORS[self.operator](getattr(model, self.name), self.argument)
+        try:
+            return OPERATORS[self.operator](getattr(model, self.name), self.argument)
+        except KeyError:
+            return None
 
 def parse_param(key, value):
     key, op = (key.rsplit(':', 1) + ['eq'])[:2]
     if key not in _keywords:
         value = Filter(key, op, value)
+        if not value.is_valid():
+            value = None
         key = 'where'
     elif key == 'sort':
         if op not in SORT_ORDER.keys():
@@ -264,7 +275,8 @@ def parse_querystring():
     params = {}
     for key, value in request.args.items(multi=True):
         k, v = parse_param(key, value)
-        params.setdefault(k, []).append(v)
+        if v is not None:
+            params.setdefault(k, []).append(v)
 
     # unroll
     for k in ('page', 'per_page'):

@@ -6,7 +6,7 @@ from types import MethodType
 from functools import wraps, partial
 
 from flask import current_app, make_response, json, jsonify, request, url_for, abort
-from flask_sqlalchemy import get_state
+from flask_sqlalchemy import get_state, Pagination
 from werkzeug.wrappers import BaseResponse
 from werkzeug.exceptions import Conflict, NotFound, InternalServerError, UnprocessableEntity, HTTPException
 from werkzeug.http import HTTP_STATUS_CODES
@@ -409,7 +409,17 @@ class Route(object):
                 return resp
 
             data, code, headers = _unpack(resp)
-            result = response_schema.dump(data, many=is_collection(data)).data
+            if isinstance(data, Pagination):
+                items = response_schema.dump(data.items, many=True).data
+                result = {
+                    'total': data.total,
+                    'page': data.page,
+                    'per_page': data.per_page,
+                    'pages': data.pages,
+                    'data': items,
+                }
+            else:
+                result = response_schema.dump(data, many=is_collection(data)).data
             return _make_response(result, code, headers)
         return view
 
@@ -560,7 +570,7 @@ class Manager(object):
         if not hasattr(resource.Meta, 'name'):
             meta['name'] = model.__tablename__.lower()
 
-    def paginated_instances(self, page, per_page, where=None, sort=None):
+    def paginated_instances(self, page=1, per_page=20, where=None, sort=None):
         instances = self.instances(where=where, sort=sort)
         if isinstance(instances, list):
             return instances
@@ -796,7 +806,7 @@ class ModelResource(Resource):
 
     @Route.GET('', rel="instances")
     def instances(self, **kwargs):
-        return self.manager.instances(**kwargs)
+        return self.manager.paginated_instances(**kwargs)
 
     @instances.POST(rel="create")
     def create(self, properties):

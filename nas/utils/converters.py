@@ -11,7 +11,7 @@ class ListConverter(BaseConverter):
     }
 
     def __init__(self, url_map, subtype=None, mutable=False):
-        super(ListConverter, self).__init__(url_map)
+        super().__init__(url_map)
         self.subtype = subtype
         self.mutable = mutable
         if subtype:

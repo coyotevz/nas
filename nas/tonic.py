@@ -56,13 +56,13 @@ class ItemNotFound(TonicException):
     werkzeug_exception = NotFound
 
     def __init__(self, resource, where=None, id=None):
-        super(ItemNotFound, self).__init__()
+        super().__init__()
         self.resource = resource
         self.id = id
         self.where = where
 
     def as_dict(self):
-        dct = super(ItemNotFound, self).as_dict()
+        dct = super().as_dict()
 
         if self.id is not None:
             dct['item'] = {
@@ -89,7 +89,7 @@ class BackendConflict(TonicException):
         self.data = kwargs
 
     def as_dict(self):
-        dct = super(BackendConflict, self).as_dict()
+        dct = super().as_dict()
         dct.update(self.data)
         return dct
 
@@ -479,7 +479,7 @@ class ItemRoute(Route):
         return ''.join((resource.route_prefix, '/', id_matcher, rule))
 
     def build_view(self, name, resource):
-        original_view = super(ItemRoute, self).build_view(name, resource)
+        original_view = super().build_view(name, resource)
 
         def view(*args, **kwargs):
             id = kwargs.pop('id')
@@ -770,7 +770,7 @@ def _add_route(routes, route, name):
 class ResourceMeta(type):
 
     def __new__(cls, name, bases, members):
-        new_cls = super(ResourceMeta, cls).__new__(cls, name, bases, members)
+        new_cls = super().__new__(cls, name, bases, members)
         routes = {}
         meta = AttributeDict()
 
